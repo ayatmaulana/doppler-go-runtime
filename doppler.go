@@ -138,5 +138,3 @@ func NewDopplerRuntime(opt DopplerRuntimeConfig) *DopplerRuntime {
     EnableDebug: opt.EnableDebug,
   }
 }
-
-
