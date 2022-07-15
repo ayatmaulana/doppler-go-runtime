@@ -2,34 +2,20 @@ package dopplergoruntime
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
 	"gopkg.in/yaml.v3"
 )
 
-
-type DopplerConfigYaml struct {
-  Setup struct {
-    Project string `yaml:"project"`
-    Config string `yaml:"config"`
-  } `yaml:"setup"`
-}
-
-type DopplerRuntimeConfig struct {
-  Token string
-  Project string
-  Config string
-
-}
-
 type DopplerRuntime struct {
   Token string
   Project string
   Config string
+  EnableDebug bool
 
   Result map[string]string
   CommonResponse *CommonResponse
@@ -41,7 +27,7 @@ func (dr *DopplerRuntime) DownloadSecret() ([]byte, error) {
     err error
   )
 
-  url := fmt.Sprintf("https://%s@api.doppler.com/v3/configs/config/secrets/download?format=json&project=%s&config=%s", dr.Token, dr.Project , dr.Config)
+  url := fmt.Sprintf(URL, dr.Token, dr.Project , dr.Config)
   req, err := http.NewRequest("GET", url, nil)
   if err != nil {
     return body, err;
@@ -84,18 +70,22 @@ func (dr *DopplerRuntime) Load() error {
     return err
   }
 
-  log.Println(string(res))
-
-
   if err = dr.Parse(res); err != nil {
-    log.Println("eerror")
-    log.Println(err)
+    if err = dr.ParseCommon(res); err != nil {
+
+    }
+
+    if dr.CommonResponse.Success == false {
+      return errors.New(dr.CommonResponse.Messages[0])
+    }
   }
 
   dr.SetEnv()
 
 
-  log.Println(fmt.Sprintf("Env Loaded; Project %s; Config %s", dr.Project, dr.Config))
+  if dr.EnableDebug {
+    fmt.Println(fmt.Sprintf("%v Env Loaded; Project %s; Config %s", len(dr.Result), dr.Project, dr.Config))
+  }
 
   return nil
 }
@@ -145,20 +135,8 @@ func NewDopplerRuntime(opt DopplerRuntimeConfig) *DopplerRuntime {
     Token: token,
     Project: project,
     Config: config,
+    EnableDebug: opt.EnableDebug,
   }
 }
 
-// func main () {
-  // doppler := NewDopplerRuntime(DopplerRuntimeConfig{
-  //   Token: os.Getenv("DOPPLER_TOKEN"),
-  // })
-  //
-  // err := doppler.Load()
-  // if err != nil {
-  //   log.Println(err)
-  // }
 
-  // fmt.Println(os.Getenv("SERVICE_NAME"))
-
-
-// }

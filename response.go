@@ -1,6 +1,6 @@
 package dopplergoruntime
 
 type CommonResponse struct {
-  Message []string
+  Messages []string
   Success bool
 }
