@@ -19,7 +19,7 @@ $ go get github.com/ayatmaulana/doppler-go-runtime
 
 ## 🌴&nbsp; Usage
 
-Before you use this package, make sure you have an `doppler.yaml` file in your root project folder with this content
+Before you use this package, make sure you have an `doppler.yaml` file in your root project folder with this content (ref: [https://docs.doppler.com/docs/project-templates](https://docs.doppler.com/docs/project-templates))
 
 ```yaml
 setup:
